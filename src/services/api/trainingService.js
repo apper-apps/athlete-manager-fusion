@@ -74,6 +74,55 @@ async update(id, sessionData) {
     return true;
   }
 
+async getRiskAssessmentData(athleteId = null) {
+    await this.delay(200);
+    let sessions = [...this.trainingSessions];
+    
+    if (athleteId) {
+      sessions = sessions.filter(session => session.athleteId === parseInt(athleteId));
+    }
+
+    // Calculate training load over last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const recentSessions = sessions.filter(session => 
+      new Date(session.date) >= thirtyDaysAgo
+    );
+
+    const riskData = sessions.reduce((acc, session) => {
+      const athleteId = session.athleteId;
+      if (!acc[athleteId]) {
+        acc[athleteId] = {
+          athleteId,
+          totalLoad: 0,
+          sessionCount: 0,
+          avgIntensity: 0,
+          recentLoad: 0,
+          loadSpike: false
+        };
+      }
+
+      acc[athleteId].totalLoad += session.intensity || 0;
+      acc[athleteId].sessionCount += 1;
+      
+      // Recent load calculation
+      if (recentSessions.find(rs => rs.Id === session.Id)) {
+        acc[athleteId].recentLoad += session.intensity || 0;
+      }
+
+      return acc;
+    }, {});
+
+    // Calculate averages and load spikes
+    Object.values(riskData).forEach(data => {
+      data.avgIntensity = data.sessionCount > 0 ? data.totalLoad / data.sessionCount : 0;
+      data.loadSpike = data.recentLoad > (data.avgIntensity * 1.5);
+    });
+
+    return athleteId ? riskData[athleteId] : riskData;
+  }
+
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }

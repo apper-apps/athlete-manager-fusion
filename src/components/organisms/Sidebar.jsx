@@ -1,24 +1,27 @@
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
 import ApperIcon from "@/components/ApperIcon";
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const navItems = [
-    { path: "/athletes", label: "Athletes", icon: "Users" },
-    { path: "/performance", label: "Performance", icon: "TrendingUp" },
-    { path: "/training", label: "Training", icon: "Calendar" },
-    { path: "/health", label: "Health", icon: "Heart" }
+  const navigation = [
+    { name: 'Athletes', path: '/athletes', icon: 'Users', label: 'Athletes' },
+    { name: 'Performance', path: '/performance', icon: 'TrendingUp', label: 'Performance' },
+    { name: 'Training', path: '/training', icon: 'Activity', label: 'Training' },
+    { name: 'Health', path: '/health', icon: 'Heart', label: 'Health' },
+    { name: 'Risk Assessment', path: '/risk-assessment', icon: 'Shield', label: 'Risk Assessment' },
   ];
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      <div className="p-6 border-b border-secondary-200">
+      <div className="flex items-center justify-between p-6 border-b border-secondary-200">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 flex items-center justify-center">
-            <ApperIcon name="Trophy" className="h-6 w-6 text-white" />
+          <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center">
+            <ApperIcon name="Zap" className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold font-display text-secondary-900">
+
+<h2 className="text-lg font-bold font-display text-secondary-900">
               Manager Pro
             </h2>
             <p className="text-xs text-secondary-500">Soccer Team</p>
@@ -27,8 +30,8 @@ const Sidebar = ({ isOpen, onClose }) => {
       </div>
 
       <nav className="flex-1 p-6 space-y-2">
-        {navItems.map((item) => (
-          <NavLink
+        {navigation.map((item) => (
+<NavLink
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
@@ -63,7 +66,6 @@ const Sidebar = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
-
   return (
     <>
       {/* Desktop Sidebar */}

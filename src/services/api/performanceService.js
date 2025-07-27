@@ -131,6 +131,62 @@ async getByAthleteId(athleteId) {
     return true;
   }
 
+async getPerformanceRiskData(athleteId = null) {
+    await this.delay(200);
+    let performances = [...this.performanceData];
+    
+    if (athleteId) {
+      performances = performances.filter(perf => perf.athleteId === parseInt(athleteId));
+    }
+
+    const riskData = performances.reduce((acc, performance) => {
+      const athleteId = performance.athleteId;
+      if (!acc[athleteId]) {
+        acc[athleteId] = {
+          athleteId,
+          performanceCount: 0,
+          avgScore: 0,
+          recentDecline: false,
+          fatigueIndicators: 0,
+          lastPerformanceDate: null
+        };
+      }
+
+      acc[athleteId].performanceCount += 1;
+      acc[athleteId].avgScore += performance.overallScore || 0;
+
+      // Check for fatigue indicators
+      if (performance.overallScore < 60) {
+        acc[athleteId].fatigueIndicators += 1;
+      }
+
+      // Update last performance date
+      if (!acc[athleteId].lastPerformanceDate || new Date(performance.date) > new Date(acc[athleteId].lastPerformanceDate)) {
+        acc[athleteId].lastPerformanceDate = performance.date;
+      }
+
+      return acc;
+    }, {});
+
+    // Calculate averages and trends
+    Object.values(riskData).forEach(data => {
+      data.avgScore = data.performanceCount > 0 ? data.avgScore / data.performanceCount : 0;
+      
+      // Check for recent performance decline
+      const recentPerfs = performances
+        .filter(p => p.athleteId === data.athleteId)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+        
+      if (recentPerfs.length >= 3) {
+        const recentAvg = recentPerfs.reduce((sum, p) => sum + (p.overallScore || 0), 0) / recentPerfs.length;
+        data.recentDecline = recentAvg < (data.avgScore * 0.85);
+      }
+    });
+
+    return athleteId ? riskData[athleteId] : riskData;
+  }
+
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }

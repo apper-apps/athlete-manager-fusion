@@ -88,6 +88,41 @@ class AthleteService {
     return true;
   }
 
+async getRiskAssessment(athleteId = null) {
+    await this.delay(300);
+    const { trainingService } = await import('./trainingService');
+    const { healthService } = await import('./healthService');
+    const { performanceService } = await import('./performanceService');
+    const { riskAssessmentService } = await import('./riskAssessmentService');
+
+    try {
+      const [trainingData, injuryData, performanceData] = await Promise.all([
+        trainingService.getRiskAssessmentData(athleteId),
+        healthService.getInjuryHistory(athleteId),
+        performanceService.getPerformanceRiskData(athleteId)
+      ]);
+
+      if (athleteId) {
+        const athlete = await this.getById(athleteId);
+        return riskAssessmentService.calculateRiskScore(athlete, trainingData, injuryData, performanceData);
+      } else {
+        const athletes = await this.getAll();
+        const riskAssessments = athletes.map(athlete => {
+          const athleteTraining = trainingData[athlete.Id] || {};
+          const athleteInjury = injuryData[athlete.Id] || {};
+          const athletePerformance = performanceData[athlete.Id] || {};
+          
+          return riskAssessmentService.calculateRiskScore(athlete, athleteTraining, athleteInjury, athletePerformance);
+        });
+
+        return riskAssessments;
+      }
+    } catch (error) {
+      console.error('Error calculating risk assessment:', error);
+      throw error;
+    }
+  }
+
   delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }

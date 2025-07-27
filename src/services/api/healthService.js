@@ -93,7 +93,57 @@ async update(id, healthData) {
       throw new Error("Health record not found");
     }
     this.healthRecords.splice(index, 1);
-    return true;
+return true;
+  }
+
+  async getInjuryHistory(athleteId = null) {
+    await this.delay(200);
+    let healthRecords = [...this.healthData];
+    
+    if (athleteId) {
+      healthRecords = healthRecords.filter(record => record.athleteId === parseInt(athleteId));
+    }
+
+    const injuryData = healthRecords.reduce((acc, record) => {
+      const athleteId = record.athleteId;
+      if (!acc[athleteId]) {
+        acc[athleteId] = {
+          athleteId,
+          totalInjuries: 0,
+          recentInjuries: 0,
+          severeInjuries: 0,
+          recurringInjuries: 0,
+          lastInjuryDate: null,
+          avgRecoveryTime: 0
+        };
+      }
+
+      if (record.type === 'injury') {
+        acc[athleteId].totalInjuries += 1;
+        
+        // Check if injury is recent (within 6 months)
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        
+        if (new Date(record.date) >= sixMonthsAgo) {
+          acc[athleteId].recentInjuries += 1;
+        }
+
+        // Check severity
+        if (record.severity === 'severe' || record.severity === 'major') {
+          acc[athleteId].severeInjuries += 1;
+        }
+
+        // Update last injury date
+        if (!acc[athleteId].lastInjuryDate || new Date(record.date) > new Date(acc[athleteId].lastInjuryDate)) {
+          acc[athleteId].lastInjuryDate = record.date;
+        }
+      }
+
+      return acc;
+    }, {});
+
+    return athleteId ? injuryData[athleteId] : injuryData;
   }
 
   delay(ms) {
