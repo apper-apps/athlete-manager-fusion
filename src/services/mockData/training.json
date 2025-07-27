@@ -1,0 +1,62 @@
+[
+  {
+    "Id": 1,
+    "title": "Technical Skills Training",
+    "date": "2024-01-22T00:00:00.000Z",
+    "time": "09:00 AM",
+    "type": "Technical",
+    "duration": 90,
+    "location": "Main Field",
+    "description": "Focus on ball control, passing accuracy, and first touch"
+  },
+  {
+    "Id": 2,
+    "title": "Tactical Formation Practice",
+    "date": "2024-01-24T00:00:00.000Z",
+    "time": "10:00 AM",
+    "type": "Tactical",
+    "duration": 120,
+    "location": "Main Field",
+    "description": "4-3-3 formation positioning and movement patterns"
+  },
+  {
+    "Id": 3,
+    "title": "Conditioning & Fitness",
+    "date": "2024-01-26T00:00:00.000Z",
+    "time": "08:30 AM",
+    "type": "Physical",
+    "duration": 75,
+    "location": "Training Ground",
+    "description": "Cardio endurance and strength training session"
+  },
+  {
+    "Id": 4,
+    "title": "Recovery Session",
+    "date": "2024-01-28T00:00:00.000Z",
+    "time": "02:00 PM",
+    "type": "Recovery",
+    "duration": 60,
+    "location": "Indoor Facility",
+    "description": "Light stretching, mobility work, and injury prevention"
+  },
+  {
+    "Id": 5,
+    "title": "Set Piece Practice",
+    "date": "2024-01-29T00:00:00.000Z",
+    "time": "10:30 AM",
+    "type": "Technical",
+    "duration": 90,
+    "location": "Main Field",
+    "description": "Corner kicks, free kicks, and penalty practice"
+  },
+  {
+    "Id": 6,
+    "title": "Match Simulation",
+    "date": "2024-01-31T00:00:00.000Z",
+    "time": "09:00 AM",
+    "type": "Tactical",
+    "duration": 100,
+    "location": "Main Field",
+    "description": "11v11 scrimmage with match conditions"
+  }
+]

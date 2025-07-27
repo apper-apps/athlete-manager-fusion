@@ -1,0 +1,98 @@
+[
+  {
+    "Id": 1,
+    "athleteId": 1,
+    "goals": 12,
+    "assists": 8,
+    "minutesPlayed": 1420,
+    "passAccuracy": 84,
+    "matchesPlayed": 18,
+    "yellowCards": 2,
+    "redCards": 0,
+    "lastUpdated": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "Id": 2,
+    "athleteId": 2,
+    "goals": 0,
+    "assists": 2,
+    "minutesPlayed": 1620,
+    "passAccuracy": 78,
+    "matchesPlayed": 18,
+    "yellowCards": 1,
+    "redCards": 0,
+    "lastUpdated": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "Id": 3,
+    "athleteId": 3,
+    "goals": 6,
+    "assists": 14,
+    "minutesPlayed": 1380,
+    "passAccuracy": 91,
+    "matchesPlayed": 17,
+    "yellowCards": 3,
+    "redCards": 0,
+    "lastUpdated": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "Id": 4,
+    "athleteId": 4,
+    "goals": 2,
+    "assists": 4,
+    "minutesPlayed": 1520,
+    "passAccuracy": 88,
+    "matchesPlayed": 18,
+    "yellowCards": 4,
+    "redCards": 1,
+    "lastUpdated": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "Id": 5,
+    "athleteId": 5,
+    "goals": 15,
+    "assists": 6,
+    "minutesPlayed": 1280,
+    "passAccuracy": 82,
+    "matchesPlayed": 16,
+    "yellowCards": 1,
+    "redCards": 0,
+    "lastUpdated": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "Id": 6,
+    "athleteId": 6,
+    "goals": 4,
+    "assists": 11,
+    "minutesPlayed": 1450,
+    "passAccuracy": 89,
+    "matchesPlayed": 17,
+    "yellowCards": 2,
+    "redCards": 0,
+    "lastUpdated": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "Id": 7,
+    "athleteId": 7,
+    "goals": 1,
+    "assists": 3,
+    "minutesPlayed": 1340,
+    "passAccuracy": 86,
+    "matchesPlayed": 16,
+    "yellowCards": 1,
+    "redCards": 0,
+    "lastUpdated": "2024-01-15T10:30:00.000Z"
+  },
+  {
+    "Id": 8,
+    "athleteId": 8,
+    "goals": 9,
+    "assists": 5,
+    "minutesPlayed": 980,
+    "passAccuracy": 79,
+    "matchesPlayed": 12,
+    "yellowCards": 0,
+    "redCards": 0,
+    "lastUpdated": "2024-01-15T10:30:00.000Z"
+  }
+]
