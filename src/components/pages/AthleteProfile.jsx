@@ -11,7 +11,7 @@ import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Performance from "@/components/pages/Performance";
 import Health from "@/components/pages/Health";
-import HealthModal from "@/components/modals/HealthModal";
+import HealthModal from "@/components/organisms/HealthModal";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
