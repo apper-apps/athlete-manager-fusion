@@ -1,18 +1,23 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/atoms/Card";
-import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
-import Loading from "@/components/ui/Loading";
-import Empty from "@/components/ui/Empty";
-import ApperIcon from "@/components/ApperIcon";
 import { healthService } from "@/services/api/healthService";
 import { athleteService } from "@/services/api/athleteService";
+import ApperIcon from "@/components/ApperIcon";
+import Loading from "@/components/ui/Loading";
+import Empty from "@/components/ui/Empty";
+import Athletes from "@/components/pages/Athletes";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
+import HealthModal from "@/components/modals/HealthModal";
 
 const Health = () => {
   const [healthRecords, setHealthRecords] = useState([]);
   const [athletes, setAthletes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [modalMode, setModalMode] = useState("add");
 
   const loadData = async () => {
     try {
@@ -34,7 +39,7 @@ const Health = () => {
     loadData();
   }, []);
 
-  const getStatusColor = (status) => {
+const getStatusColor = (status) => {
     const colors = {
       "Healthy": "success",
       "Minor Injury": "warning",
@@ -54,6 +59,24 @@ const Health = () => {
       "Under Observation": "Eye"
     };
     return icons[status] || "Heart";
+  };
+
+  const getSeverityColor = (severity) => {
+    const colors = {
+      "Minor": "success",
+      "Moderate": "warning", 
+      "Severe": "danger",
+      "Critical": "danger"
+    };
+    return colors[severity] || "secondary";
+  };
+
+  const getActiveInjuries = () => {
+    return healthRecords.filter(record => 
+      record.status === "Minor Injury" || 
+      record.status === "Major Injury" || 
+      record.status === "Recovering"
+    );
   };
 
   const healthStats = {
@@ -89,11 +112,60 @@ const Health = () => {
             Monitor athlete health status and medical records
           </p>
         </div>
-        <Button>
+<Button onClick={() => setShowModal(true)}>
           <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
           Add Health Record
         </Button>
-      </div>
+</div>
+
+      {/* Health Alerts Section */}
+      {getActiveInjuries().length > 0 && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardHeader>
+            <CardTitle className="flex items-center text-orange-800">
+              <ApperIcon name="AlertTriangle" className="h-5 w-5 mr-2" />
+              Health Alerts ({getActiveInjuries().length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {getActiveInjuries().slice(0, 3).map((record) => {
+                const athlete = athletes.find(a => a.Id === record.athleteId);
+                return (
+                  <div key={record.Id} className="flex items-center justify-between p-3 bg-white rounded-lg border border-orange-200">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={athlete?.photo || "/api/placeholder/32/32"}
+                        alt={athlete?.name || "Unknown"}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="font-medium text-secondary-900">{athlete?.name || "Unknown Athlete"}</p>
+                        <p className="text-sm text-orange-700">{record.condition}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      {record.severity && (
+                        <Badge variant={getSeverityColor(record.severity)} size="sm">
+                          {record.severity}
+                        </Badge>
+                      )}
+                      <Badge variant={getStatusColor(record.status)} size="sm">
+                        {record.status}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+              {getActiveInjuries().length > 3 && (
+                <p className="text-sm text-orange-600 text-center">
+                  +{getActiveInjuries().length - 3} more active injuries
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
@@ -187,7 +259,7 @@ const Health = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <Card className="hover:scale-[1.02] transition-transform duration-200">
+<Card className="hover:scale-[1.02] transition-transform duration-200">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
@@ -205,9 +277,16 @@ const Health = () => {
                           </p>
                         </div>
                       </div>
-                      <Badge variant={getStatusColor(record.status)}>
-                        {record.status}
-                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        {record.severity && (
+                          <Badge variant={getSeverityColor(record.severity)} size="sm">
+                            {record.severity}
+                          </Badge>
+                        )}
+                        <Badge variant={getStatusColor(record.status)}>
+                          {record.status}
+                        </Badge>
+                      </div>
                     </div>
 
                     <div className="space-y-3">
@@ -230,10 +309,36 @@ const Health = () => {
                         </div>
                       )}
 
+                      {record.bodyPart && (
+                        <div className="flex items-center space-x-2">
+                          <ApperIcon name="MapPin" className="h-4 w-4 text-secondary-500" />
+                          <span className="text-sm text-secondary-600">
+                            Affected Area: {record.bodyPart}
+                          </span>
+                        </div>
+                      )}
+
+                      {record.recoveryTimeline && (
+                        <div className="flex items-start space-x-2">
+                          <ApperIcon name="Clock" className="h-4 w-4 text-secondary-500 mt-0.5" />
+                          <span className="text-sm text-secondary-600">
+                            Recovery: {record.recoveryTimeline}
+                          </span>
+                        </div>
+                      )}
+
                       {record.notes && (
                         <div className="bg-secondary-50 rounded-lg p-3">
                           <p className="text-sm text-secondary-700">
                             <strong>Notes:</strong> {record.notes}
+                          </p>
+                        </div>
+                      )}
+
+                      {record.treatmentPlan && (
+                        <div className="bg-blue-50 rounded-lg p-3">
+                          <p className="text-sm text-blue-700">
+                            <strong>Treatment:</strong> {record.treatmentPlan}
                           </p>
                         </div>
                       )}
@@ -243,7 +348,15 @@ const Health = () => {
                           Record #{record.Id}
                         </div>
                         <div className="flex space-x-2">
-                          <Button variant="ghost" size="sm">
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setSelectedRecord(record);
+                              setModalMode("edit");
+                              setShowModal(true);
+                            }}
+                          >
                             <ApperIcon name="Edit" className="h-3 w-3 mr-1" />
                             Edit
                           </Button>
@@ -268,7 +381,15 @@ const Health = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="ghost" className="h-auto p-4 flex flex-col items-center space-y-2">
+<Button 
+              variant="ghost" 
+              className="h-auto p-4 flex flex-col items-center space-y-2"
+              onClick={() => {
+                setSelectedRecord(null);
+                setModalMode("add");
+                setShowModal(true);
+              }}
+            >
               <ApperIcon name="UserPlus" className="h-8 w-8 text-primary-600" />
               <span className="font-medium">Medical Checkup</span>
               <span className="text-xs text-secondary-500 text-center">
@@ -276,7 +397,15 @@ const Health = () => {
               </span>
             </Button>
 
-            <Button variant="ghost" className="h-auto p-4 flex flex-col items-center space-y-2">
+            <Button 
+              variant="ghost" 
+              className="h-auto p-4 flex flex-col items-center space-y-2"
+              onClick={() => {
+                setSelectedRecord(null);
+                setModalMode("add");
+                setShowModal(true);
+              }}
+            >
               <ApperIcon name="Activity" className="h-8 w-8 text-blue-600" />
               <span className="font-medium">Injury Report</span>
               <span className="text-xs text-secondary-500 text-center">
@@ -284,7 +413,15 @@ const Health = () => {
               </span>
             </Button>
 
-            <Button variant="ghost" className="h-auto p-4 flex flex-col items-center space-y-2">
+            <Button 
+              variant="ghost" 
+              className="h-auto p-4 flex flex-col items-center space-y-2"
+              onClick={() => {
+                setSelectedRecord(null);
+                setModalMode("add");
+                setShowModal(true);
+              }}
+            >
               <ApperIcon name="TrendingUp" className="h-8 w-8 text-green-600" />
               <span className="font-medium">Recovery Plan</span>
               <span className="text-xs text-secondary-500 text-center">
@@ -292,6 +429,28 @@ const Health = () => {
               </span>
             </Button>
           </div>
+
+          {/* Add state management for modal */}
+          {showModal && (
+            <HealthModal
+              isOpen={showModal}
+              onClose={() => {
+                setShowModal(false);
+                setSelectedRecord(null);
+                setModalMode("add");
+              }}
+              healthRecord={selectedRecord}
+              onSave={async (healthData) => {
+                if (modalMode === "edit" && selectedRecord) {
+                  await healthService.update(selectedRecord.Id, healthData);
+                } else {
+                  await healthService.create(healthData);
+                }
+                loadData();
+              }}
+              mode={modalMode}
+            />
+          )}
         </CardContent>
       </Card>
     </motion.div>

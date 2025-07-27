@@ -1,16 +1,20 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/atoms/Card";
-import Button from "@/components/atoms/Button";
-import Badge from "@/components/atoms/Badge";
+import { toast } from "react-toastify";
+import { format } from "date-fns";
+import { healthService } from "@/services/api/healthService";
+import { athleteService } from "@/services/api/athleteService";
+import ApperIcon from "@/components/ApperIcon";
 import FormField from "@/components/molecules/FormField";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
-import ApperIcon from "@/components/ApperIcon";
-import { athleteService } from "@/services/api/athleteService";
-import { toast } from "react-toastify";
-import { format } from "date-fns";
+import Performance from "@/components/pages/Performance";
+import Health from "@/components/pages/Health";
+import HealthModal from "@/components/modals/HealthModal";
+import Badge from "@/components/atoms/Badge";
+import Button from "@/components/atoms/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
 
 const AthleteProfile = () => {
   const { id } = useParams();
@@ -22,6 +26,8 @@ const AthleteProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
   const [formData, setFormData] = useState({});
+  const [healthRecords, setHealthRecords] = useState([]);
+  const [showHealthModal, setShowHealthModal] = useState(false);
 
   const positionColors = {
     Goalkeeper: "secondary",
@@ -37,8 +43,9 @@ const AthleteProfile = () => {
     { id: "performance", label: "Performance History", icon: "TrendingUp" }
   ];
 
-  useEffect(() => {
+useEffect(() => {
     loadAthlete();
+    loadHealthRecords();
   }, [id]);
 
   const loadAthlete = async () => {
@@ -53,6 +60,20 @@ const AthleteProfile = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const loadHealthRecords = async () => {
+    try {
+      const records = await healthService.getByAthleteId(parseInt(id));
+      setHealthRecords(records || []);
+    } catch (err) {
+      console.error("Failed to load health records:", err);
+      setHealthRecords([]);
+    }
+  };
+
+  const addHealthRecord = () => {
+    setShowHealthModal(true);
   };
 
   const handleEdit = (section) => {
@@ -481,54 +502,155 @@ const AthleteProfile = () => {
           )}
 
           {/* Medical History Tab */}
-          {activeTab === "medical" && (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Medical History</CardTitle>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={addMedicalRecord}
-                >
-                  <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
-                  Add Record
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {athlete.medicalHistory && athlete.medicalHistory.length > 0 ? (
-                  <div className="space-y-4">
-                    {athlete.medicalHistory.map((record) => (
-                      <div key={record.id} className="p-4 border border-secondary-200 rounded-lg">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <Badge 
-                              variant={record.status === "Recovered" ? "success" : 
-                                       record.status === "Recovering" ? "warning" : "secondary"}
-                            >
-                              {record.status}
-                            </Badge>
-                            <span className="text-sm text-secondary-600">
-                              {format(new Date(record.date), "MMM dd, yyyy")}
-                            </span>
+{activeTab === "medical" && (
+            <>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Health Records</CardTitle>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={addHealthRecord}
+                  >
+                    <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
+                    Add Health Record
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {healthRecords && healthRecords.length > 0 ? (
+                    <div className="space-y-4">
+                      {healthRecords.map((record) => (
+                        <div key={record.Id} className="p-4 border border-secondary-200 rounded-lg">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              <Badge 
+                                variant={record.status === "Healthy" ? "success" : 
+                                         record.status === "Minor Injury" ? "warning" :
+                                         record.status === "Major Injury" ? "danger" :
+                                         record.status === "Recovering" ? "info" : "secondary"}
+                              >
+                                {record.status}
+                              </Badge>
+                              {record.severity && (
+                                <Badge variant="secondary" size="sm">
+                                  {record.severity}
+                                </Badge>
+                              )}
+                              <span className="text-sm text-secondary-600">
+                                {format(new Date(record.lastUpdated), "MMM dd, yyyy")}
+                              </span>
+                            </div>
+                            {record.bodyPart && (
+                              <Badge variant="secondary">{record.bodyPart}</Badge>
+                            )}
                           </div>
-                          <Badge variant="secondary">{record.type}</Badge>
+                          
+                          <p className="text-secondary-900 mb-2 font-medium">{record.condition}</p>
+                          
+                          {record.treatmentPlan && (
+                            <div className="bg-blue-50 rounded p-2 mb-2">
+                              <p className="text-sm text-blue-700">
+                                <strong>Treatment:</strong> {record.treatmentPlan}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {record.recoveryTimeline && (
+                            <div className="bg-green-50 rounded p-2 mb-2">
+                              <p className="text-sm text-green-700">
+                                <strong>Recovery:</strong> {record.recoveryTimeline}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {record.notes && (
+                            <p className="text-sm text-secondary-600 mt-2">{record.notes}</p>
+                          )}
+                          
+                          {record.nextCheckup && (
+                            <div className="flex items-center mt-2 text-sm text-secondary-600">
+                              <ApperIcon name="Calendar" className="h-4 w-4 mr-1" />
+                              Next checkup: {format(new Date(record.nextCheckup), "MMM dd, yyyy")}
+                            </div>
+                          )}
                         </div>
-                        <p className="text-secondary-900 mb-1">{record.description}</p>
-                        {record.doctor && (
-                          <p className="text-sm text-secondary-600">Doctor: {record.doctor}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-secondary-600">
-                    <ApperIcon name="Heart" className="h-12 w-12 mx-auto mb-4 text-secondary-400" />
-                    <p>No medical records available</p>
-                    <p className="text-sm">Click "Add Record" to create the first entry</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-secondary-600">
+                      <ApperIcon name="Heart" className="h-12 w-12 mx-auto mb-4 text-secondary-400" />
+                      <p>No health records available</p>
+                      <p className="text-sm">Click "Add Health Record" to create the first entry</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Medical History</CardTitle>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={addMedicalRecord}
+                  >
+                    <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
+                    Add Record
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {athlete.medicalHistory && athlete.medicalHistory.length > 0 ? (
+                    <div className="space-y-4">
+                      {athlete.medicalHistory.map((record) => (
+                        <div key={record.id} className="p-4 border border-secondary-200 rounded-lg">
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <Badge 
+                                variant={record.status === "Recovered" ? "success" : 
+                                         record.status === "Recovering" ? "warning" : "secondary"}
+                              >
+                                {record.status}
+                              </Badge>
+                              <span className="text-sm text-secondary-600">
+                                {format(new Date(record.date), "MMM dd, yyyy")}
+                              </span>
+                            </div>
+                            <Badge variant="secondary">{record.type}</Badge>
+                          </div>
+                          <p className="text-secondary-900 mb-1">{record.description}</p>
+                          {record.doctor && (
+                            <p className="text-sm text-secondary-600">Doctor: {record.doctor}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-secondary-600">
+                      <ApperIcon name="FileText" className="h-12 w-12 mx-auto mb-4 text-secondary-400" />
+                      <p>No medical records available</p>
+                      <p className="text-sm">Click "Add Record" to create the first entry</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+          {/* Health Modal */}
+          {showHealthModal && (
+            <HealthModal
+              isOpen={showHealthModal}
+              onClose={() => setShowHealthModal(false)}
+              onSave={async (healthData) => {
+                await healthService.create(healthData);
+                // Reload health records
+                const records = await healthService.getByAthleteId(parseInt(id));
+                setHealthRecords(records);
+                toast.success("Health record created successfully!");
+              }}
+              mode="add"
+              athleteId={parseInt(id)}
+            />
           )}
 
           {/* Performance History Tab */}
