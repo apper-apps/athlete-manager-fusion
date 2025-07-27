@@ -11,7 +11,7 @@ const PerformanceChart = ({ performanceData, athletes, chartType: externalChartT
     options: {}
   });
 
-  const chartOptions = [
+const chartOptions = [
     { value: "goals", label: "Goals Scored" },
     { value: "assists", label: "Assists Made" },
     { value: "minutes", label: "Minutes Played" },
@@ -19,7 +19,9 @@ const PerformanceChart = ({ performanceData, athletes, chartType: externalChartT
     { value: "sprint", label: "Sprint Times" },
     { value: "endurance", label: "Endurance Scores" },
     { value: "technical", label: "Technical Skills" },
-    { value: "comparison", label: "Performance Comparison" }
+    { value: "comparison", label: "Performance Comparison" },
+    { value: "trends", label: "Trend Analysis" },
+    { value: "forecast", label: "Performance Forecast" }
   ];
 
 useEffect(() => {
@@ -28,7 +30,7 @@ useEffect(() => {
     }
   }, [externalChartType]);
 
-  useEffect(() => {
+useEffect(() => {
     if (!performanceData.length || !athletes.length) return;
 
     const athletePerformance = performanceData
@@ -44,6 +46,34 @@ useEffect(() => {
       })
       .filter(Boolean)
       .slice(0, 10);
+
+    // Generate trend data for analytics
+    const generateTrendData = (baseData, periods = 6) => {
+      return Array.from({ length: periods }, (_, i) => {
+        const variance = 0.8 + Math.random() * 0.4; // 80-120% variance
+        return Math.round(baseData * variance);
+      });
+    };
+
+    const generateForecastData = (historical) => {
+      // Simple linear regression for prediction
+      const n = historical.length;
+      const x = Array.from({ length: n }, (_, i) => i + 1);
+      const y = historical;
+      
+      const sumX = x.reduce((a, b) => a + b, 0);
+      const sumY = y.reduce((a, b) => a + b, 0);
+      const sumXY = x.reduce((acc, xi, i) => acc + xi * y[i], 0);
+      const sumXX = x.reduce((acc, xi) => acc + xi * xi, 0);
+      
+      const slope = (n * sumXY - sumX * sumY) / (n * sumXX - sumX * sumX);
+      const intercept = (sumY - slope * sumX) / n;
+      
+      // Predict next 3 periods
+      return Array.from({ length: 3 }, (_, i) => 
+        Math.max(0, Math.round(slope * (n + i + 1) + intercept))
+      );
+    };
 
     let series = [];
     let categories = [];
@@ -128,9 +158,47 @@ useEffect(() => {
         categories = athletePerformance.slice(0, 5).map(p => p.athleteName);
         title = "Multi-Metric Comparison";
         break;
+      case "trends":
+        const trendPeriods = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+        series = [
+          {
+            name: "Goals Trend",
+            data: generateTrendData(8, 6)
+          },
+          {
+            name: "Assists Trend", 
+            data: generateTrendData(6, 6)
+          },
+          {
+            name: "Pass Accuracy",
+            data: generateTrendData(85, 6)
+          }
+        ];
+        categories = trendPeriods;
+        title = "Performance Trends (6 Months)";
+        chartTypeConfig = "line";
+        break;
+      case "forecast":
+        const forecastBase = [25, 28, 31, 35, 32, 38]; // Historical goals
+        const forecast = generateForecastData(forecastBase);
+        series = [
+          {
+            name: "Historical",
+            data: forecastBase
+          },
+          {
+            name: "Forecast",
+            data: [null, null, null, null, null, null, ...forecast]
+          }
+        ];
+        categories = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+        title = "Performance Forecast";
+        chartTypeConfig = "line";
+        break;
       default:
         break;
     }
+
 const baseOptions = {
       chart: {
         type: chartTypeConfig,
@@ -155,13 +223,17 @@ const baseOptions = {
       stroke: {
         show: true,
         width: chartTypeConfig === "line" ? 3 : 2,
-        colors: chartTypeConfig === "line" ? ["#2D7A3E"] : ["transparent"]
+        colors: chartTypeConfig === "line" ? 
+          (chartType === "trends" ? ["#2D7A3E", "#3b82f6", "#f59e0b"] : 
+           chartType === "forecast" ? ["#2D7A3E", "#ef4444"] : ["#2D7A3E"]) : 
+          ["transparent"],
+        dashArray: chartType === "forecast" ? [0, 5] : [0]
       },
       xaxis: {
         categories: categories,
         labels: {
           style: { colors: '#64748b', fontSize: '12px' },
-          rotate: -45
+          rotate: chartType === "trends" || chartType === "forecast" ? 0 : -45
         }
       },
       yaxis: {
@@ -169,7 +241,8 @@ const baseOptions = {
           text: chartType === "accuracy" ? "Percentage (%)" : 
                 chartType === "sprint" ? "Time (seconds)" :
                 chartType === "endurance" ? "Fitness Score" :
-                chartType === "technical" ? "Skill Rating" : "Count",
+                chartType === "technical" ? "Skill Rating" :
+                chartType === "trends" || chartType === "forecast" ? "Performance Score" : "Count",
           style: { color: '#64748b', fontSize: '12px' }
         }
       },
@@ -180,7 +253,7 @@ const baseOptions = {
           shade: "light",
           type: "vertical",
           shadeIntensity: 0.25,
-          gradientToColors: ["#4ade80"],
+          gradientToColors: chartType === "trends" ? ["#4ade80", "#60a5fa", "#fbbf24"] : ["#4ade80"],
           inverseColors: false,
           opacityFrom: 0.85,
           opacityTo: 0.55,
@@ -189,6 +262,8 @@ const baseOptions = {
       },
       colors: chartType === "comparison" ? 
         ["#2D7A3E", "#3b82f6", "#f59e0b"] : 
+        chartType === "trends" ? ["#2D7A3E", "#3b82f6", "#f59e0b"] :
+        chartType === "forecast" ? ["#2D7A3E", "#ef4444"] :
         ["#2D7A3E"],
       tooltip: {
         y: {
@@ -197,7 +272,8 @@ const baseOptions = {
             if (chartType === "sprint") return val + "s";
             if (chartType === "endurance" || chartType === "technical") return val + " pts";
             if (chartType === "comparison" && seriesIndex === 2) return (val * 10) + "%";
-            return val.toString();
+            if (chartType === "forecast" && seriesIndex === 1) return "Predicted: " + val;
+            return val?.toString() || "0";
           }
         }
       },
@@ -208,10 +284,21 @@ const baseOptions = {
         position: "back"
       },
       legend: {
-        show: chartType === "comparison",
+        show: ["comparison", "trends", "forecast"].includes(chartType),
         position: "top",
         horizontalAlign: "center"
-      }
+      },
+      annotations: chartType === "forecast" ? {
+        xaxis: [{
+          x: 'Jun',
+          borderColor: '#f59e0b',
+          strokeDashArray: 3,
+          label: {
+            text: 'Forecast Start',
+            style: { color: '#f59e0b', fontSize: '12px' }
+          }
+        }]
+      } : undefined
     };
 
     setChartData({ series, options: baseOptions });

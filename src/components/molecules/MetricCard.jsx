@@ -8,7 +8,8 @@ const MetricCard = ({
   trend, 
   trendValue, 
   color = "primary",
-  className = ""
+  className = "",
+  prediction = null
 }) => {
   const colorClasses = {
     primary: "text-primary-600 bg-primary-50",
@@ -35,16 +36,24 @@ const MetricCard = ({
             <p className="text-3xl font-bold text-secondary-900 mt-2">
               {value}
             </p>
-            {trend && (
-              <div className="flex items-center mt-2">
-                <ApperIcon 
-                  name={trend === "up" ? "TrendingUp" : trend === "down" ? "TrendingDown" : "Minus"} 
-                  className={`h-4 w-4 mr-1 ${trendColors[trend]}`}
-                />
-                <span className={`text-sm font-medium ${trendColors[trend]}`}>
-                  {trendValue}
-                </span>
-                <span className="text-sm text-secondary-500 ml-1">vs last period</span>
+{trend && (
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <ApperIcon 
+                    name={trend === "up" ? "TrendingUp" : trend === "down" ? "TrendingDown" : "Minus"} 
+                    className={`h-4 w-4 mr-1 ${trendColors[trend]}`}
+                  />
+                  <span className={`text-sm font-medium ${trendColors[trend]}`}>
+                    {trendValue}
+                  </span>
+                  <span className="text-sm text-secondary-500 ml-1">vs last period</span>
+                </div>
+                {prediction && (
+                  <div className="flex items-center text-xs text-secondary-600">
+                    <ApperIcon name="Zap" className="h-3 w-3 mr-1" />
+                    <span>Predicted: <strong>{prediction}</strong></span>
+                  </div>
+                )}
               </div>
             )}
           </div>

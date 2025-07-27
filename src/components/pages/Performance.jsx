@@ -104,10 +104,21 @@ const calculateMetrics = () => {
         avgEnduranceScore: 0,
         avgTechnicalSkills: 0,
         topScorer: null,
-        topAssister: null
+        topAssister: null,
+        trends: {
+          goals: { trend: 'neutral', value: '0%', prediction: 0 },
+          assists: { trend: 'neutral', value: '0%', prediction: 0 },
+          sprintTime: { trend: 'neutral', value: '0%', prediction: 0 },
+          endurance: { trend: 'neutral', value: '0%', prediction: 0 },
+          passAccuracy: { trend: 'neutral', value: '0%', prediction: 0 },
+          technicalSkills: { trend: 'neutral', value: '0%', prediction: 0 },
+          minutes: { trend: 'neutral', value: '0%', prediction: 0 },
+          matches: { trend: 'neutral', value: '0%', prediction: 0 }
+        }
       };
     }
 
+    // Current period calculations
     const totalGoals = data.reduce((sum, p) => sum + (p.goals || 0), 0);
     const totalAssists = data.reduce((sum, p) => sum + (p.assists || 0), 0);
     const totalMinutes = data.reduce((sum, p) => sum + (p.minutesPlayed || 0), 0);
@@ -129,6 +140,33 @@ const calculateMetrics = () => {
       ? Math.round(data.reduce((sum, p) => sum + (p.technicalSkills || 80), 0) / data.length)
       : 80;
 
+    // Historical trend analysis (simulate previous period)
+    const calculateTrend = (current, baseline, isLowerBetter = false) => {
+      const variance = Math.random() * 0.3 + 0.85; // 85-115% variance
+      const previous = baseline * variance;
+      const change = ((current - previous) / previous) * 100;
+      const trend = Math.abs(change) < 2 ? 'neutral' : 
+                   (isLowerBetter ? (change < 0 ? 'up' : 'down') : (change > 0 ? 'up' : 'down'));
+      const prediction = current + (current * (change / 100) * 0.5); // Predict next period
+      
+      return {
+        trend,
+        value: `${change >= 0 ? '+' : ''}${change.toFixed(1)}%`,
+        prediction: Math.round(prediction * 100) / 100
+      };
+    };
+
+    const trends = {
+      goals: calculateTrend(totalGoals, 35),
+      assists: calculateTrend(totalAssists, 42),
+      sprintTime: calculateTrend(avgSprintTime, 12.8, true),
+      endurance: calculateTrend(avgEnduranceScore, 72),
+      passAccuracy: calculateTrend(avgPassAccuracy, 83),
+      technicalSkills: calculateTrend(avgTechnicalSkills, 78),
+      minutes: calculateTrend(totalMinutes, 11200),
+      matches: calculateTrend(totalMatches, 135)
+    };
+
     const topScorerData = data.reduce((max, p) => (p.goals || 0) > (max.goals || 0) ? p : max, {});
     const topAssisterData = data.reduce((max, p) => (p.assists || 0) > (max.assists || 0) ? p : max, {});
 
@@ -145,7 +183,8 @@ const calculateMetrics = () => {
       avgEnduranceScore,
       avgTechnicalSkills,
       topScorer,
-      topAssister
+      topAssister,
+      trends
     };
   };
 
@@ -274,38 +313,42 @@ const calculateMetrics = () => {
         </CardContent>
       </Card>
 {/* Enhanced Metrics Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <MetricCard
           title="Total Goals"
           value={metrics.totalGoals.toString()}
           icon="Target"
-          trend="up"
-          trendValue="+12%"
+          trend={metrics.trends.goals.trend}
+          trendValue={metrics.trends.goals.value}
           color="success"
+          prediction={metrics.trends.goals.prediction}
         />
         <MetricCard
           title="Total Assists"
           value={metrics.totalAssists.toString()}
           icon="Users"
-          trend="up"
-          trendValue="+8%"
+          trend={metrics.trends.assists.trend}
+          trendValue={metrics.trends.assists.value}
           color="info"
+          prediction={metrics.trends.assists.prediction}
         />
         <MetricCard
           title="Avg Sprint Time"
           value={`${metrics.avgSprintTime}s`}
           icon="Zap"
-          trend="down"
-          trendValue="-0.3s"
+          trend={metrics.trends.sprintTime.trend}
+          trendValue={metrics.trends.sprintTime.value}
           color="primary"
+          prediction={`${metrics.trends.sprintTime.prediction}s`}
         />
         <MetricCard
           title="Endurance Score"
           value={`${metrics.avgEnduranceScore}`}
           icon="Activity"
-          trend="up"
-          trendValue="+5 pts"
+          trend={metrics.trends.endurance.trend}
+          trendValue={metrics.trends.endurance.value}
           color="warning"
+          prediction={`${metrics.trends.endurance.prediction} pts`}
         />
       </div>
 
@@ -314,33 +357,37 @@ const calculateMetrics = () => {
           title="Pass Accuracy"
           value={`${metrics.avgPassAccuracy}%`}
           icon="CheckCircle"
-          trend="up"
-          trendValue="+3%"
+          trend={metrics.trends.passAccuracy.trend}
+          trendValue={metrics.trends.passAccuracy.value}
           color="primary"
+          prediction={`${metrics.trends.passAccuracy.prediction}%`}
         />
         <MetricCard
           title="Technical Skills"
           value={`${metrics.avgTechnicalSkills}`}
           icon="Star"
-          trend="up"
-          trendValue="+2 pts"
+          trend={metrics.trends.technicalSkills.trend}
+          trendValue={metrics.trends.technicalSkills.value}
           color="info"
+          prediction={`${metrics.trends.technicalSkills.prediction} pts`}
         />
         <MetricCard
           title="Minutes Played"
           value={metrics.totalMinutes.toLocaleString()}
           icon="Clock"
-          trend="up"
-          trendValue="+15%"
+          trend={metrics.trends.minutes.trend}
+          trendValue={metrics.trends.minutes.value}
           color="warning"
+          prediction={metrics.trends.minutes.prediction.toLocaleString()}
         />
         <MetricCard
           title="Total Matches"
           value={metrics.totalMatches.toString()}
           icon="Calendar"
-          trend="neutral"
-          trendValue="Same"
+          trend={metrics.trends.matches.trend}
+          trendValue={metrics.trends.matches.value}
           color="success"
+          prediction={metrics.trends.matches.prediction.toString()}
         />
       </div>
 
@@ -351,7 +398,7 @@ const calculateMetrics = () => {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2 mb-4">
-            {['goals', 'assists', 'sprint', 'endurance', 'technical', 'comparison'].map(chart => (
+{['goals', 'assists', 'sprint', 'endurance', 'technical', 'comparison', 'trends', 'forecast'].map(chart => (
               <Button
                 key={chart}
                 variant={selectedChart === chart ? "default" : "outline"}
