@@ -9,7 +9,7 @@ import Athletes from "@/components/pages/Athletes";
 import Badge from "@/components/atoms/Badge";
 import Button from "@/components/atoms/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
-import HealthModal from "@/components/modals/HealthModal";
+import HealthModal from "@/components/organisms/HealthModal";
 
 const Health = () => {
   const [healthRecords, setHealthRecords] = useState([]);

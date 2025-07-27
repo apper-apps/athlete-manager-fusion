@@ -653,66 +653,114 @@ useEffect(() => {
             />
           )}
 
-          {/* Performance History Tab */}
+{/* Performance History Tab */}
           {activeTab === "performance" && (
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Performance History</CardTitle>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={addPerformanceRecord}
-                >
-                  <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
-                  Add Record
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {athlete.performanceHistory && athlete.performanceHistory.length > 0 ? (
-                  <div className="space-y-4">
-                    {athlete.performanceHistory.map((record) => (
-                      <div key={record.id} className="p-4 border border-secondary-200 rounded-lg">
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h4 className="font-medium text-secondary-900">{record.match}</h4>
-                            <p className="text-sm text-secondary-600">
-                              {format(new Date(record.date), "MMM dd, yyyy")}
-                            </p>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Performance Overview</CardTitle>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={addPerformanceRecord}
+                  >
+                    <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
+                    Add Record
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {athlete.performanceHistory && athlete.performanceHistory.length > 0 ? (
+                    <div className="space-y-6">
+                      {/* Performance Metrics Summary */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="text-center p-4 bg-green-50 rounded-lg">
+                          <div className="text-2xl font-bold text-green-600">
+                            {athlete.performanceHistory.reduce((sum, r) => sum + (r.goals || 0), 0)}
                           </div>
-                          <Badge variant="secondary">Rating: {record.rating}</Badge>
+                          <div className="text-sm text-green-700">Total Goals</div>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-secondary-900">{record.goals}</div>
-                            <div className="text-secondary-600">Goals</div>
+                        <div className="text-center p-4 bg-blue-50 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-600">
+                            {athlete.performanceHistory.reduce((sum, r) => sum + (r.assists || 0), 0)}
                           </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-secondary-900">{record.assists}</div>
-                            <div className="text-secondary-600">Assists</div>
+                          <div className="text-sm text-blue-700">Total Assists</div>
+                        </div>
+                        <div className="text-center p-4 bg-purple-50 rounded-lg">
+                          <div className="text-2xl font-bold text-purple-600">
+                            {Math.round(athlete.performanceHistory.reduce((sum, r) => sum + (r.rating || 0), 0) / athlete.performanceHistory.length * 10) / 10}
                           </div>
-                          <div className="text-center">
-                            <div className="text-lg font-bold text-secondary-900">{record.minutesPlayed}</div>
-                            <div className="text-secondary-600">Minutes</div>
+                          <div className="text-sm text-purple-700">Avg Rating</div>
+                        </div>
+                        <div className="text-center p-4 bg-orange-50 rounded-lg">
+                          <div className="text-2xl font-bold text-orange-600">
+                            {athlete.performanceHistory.reduce((sum, r) => sum + (r.minutesPlayed || 0), 0)}
                           </div>
-                          {record.saves && (
-                            <div className="text-center">
-                              <div className="text-lg font-bold text-secondary-900">{record.saves}</div>
-                              <div className="text-secondary-600">Saves</div>
-                            </div>
-                          )}
+                          <div className="text-sm text-orange-700">Total Minutes</div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-secondary-600">
-                    <ApperIcon name="TrendingUp" className="h-12 w-12 mx-auto mb-4 text-secondary-400" />
-                    <p>No performance records available</p>
-                    <p className="text-sm">Click "Add Record" to create the first entry</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+
+                      {/* Recent Performance Records */}
+                      <div>
+                        <h4 className="font-semibold text-secondary-900 mb-4">Recent Matches</h4>
+                        <div className="space-y-4">
+                          {athlete.performanceHistory.slice(-5).reverse().map((record) => (
+                            <div key={record.id} className="p-4 border border-secondary-200 rounded-lg hover:bg-secondary-50 transition-colors">
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="font-medium text-secondary-900">{record.match}</h4>
+                                  <p className="text-sm text-secondary-600">
+                                    {format(new Date(record.date), "MMM dd, yyyy")}
+                                  </p>
+                                </div>
+                                <Badge 
+                                  variant={record.rating >= 8 ? "success" : record.rating >= 6 ? "warning" : "secondary"}
+                                >
+                                  Rating: {record.rating}
+                                </Badge>
+                              </div>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div className="flex items-center space-x-2">
+                                  <ApperIcon name="Target" className="h-4 w-4 text-green-600" />
+                                  <span className="font-semibold">{record.goals}</span>
+                                  <span className="text-secondary-600">Goals</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <ApperIcon name="Users" className="h-4 w-4 text-blue-600" />
+                                  <span className="font-semibold">{record.assists}</span>
+                                  <span className="text-secondary-600">Assists</span>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <ApperIcon name="Clock" className="h-4 w-4 text-orange-600" />
+                                  <span className="font-semibold">{record.minutesPlayed}'</span>
+                                  <span className="text-secondary-600">Minutes</span>
+                                </div>
+                                {record.saves && (
+                                  <div className="flex items-center space-x-2">
+                                    <ApperIcon name="Shield" className="h-4 w-4 text-purple-600" />
+                                    <span className="font-semibold">{record.saves}</span>
+                                    <span className="text-secondary-600">Saves</span>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-secondary-600">
+                      <ApperIcon name="TrendingUp" className="h-16 w-16 mx-auto mb-4 text-secondary-400" />
+                      <p className="text-lg font-medium mb-2">No performance records available</p>
+                      <p className="text-sm mb-4">Track match performance, goals, assists, and ratings</p>
+                      <Button onClick={addPerformanceRecord} size="sm">
+                        <ApperIcon name="Plus" className="h-4 w-4 mr-2" />
+                        Add First Record
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
         </motion.div>
       </div>

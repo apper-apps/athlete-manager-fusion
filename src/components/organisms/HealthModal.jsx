@@ -104,7 +104,7 @@ const HealthModal = ({ isOpen, onClose, healthRecord, onSave, mode = "add", athl
     }
   };
 
-  const validateForm = () => {
+const validateForm = () => {
     const newErrors = {};
 
     if (!formData.athleteId) {
@@ -120,7 +120,8 @@ const HealthModal = ({ isOpen, onClose, healthRecord, onSave, mode = "add", athl
     }
 
     // If injury status, require injury-specific fields
-    if (formData.status.includes("Injury") || formData.status === "Recovering") {
+    const isInjuryStatus = formData.status.includes("Injury") || formData.status === "Recovering";
+    if (isInjuryStatus) {
       if (!formData.injuryType) {
         newErrors.injuryType = "Injury type is required for injury status";
       }
@@ -129,6 +130,21 @@ const HealthModal = ({ isOpen, onClose, healthRecord, onSave, mode = "add", athl
       }
       if (!formData.bodyPart) {
         newErrors.bodyPart = "Body part is required for injury status";
+      }
+      if (!formData.treatmentPlan.trim()) {
+        newErrors.treatmentPlan = "Treatment plan is required for injuries";
+      }
+      if (!formData.recoveryTimeline.trim()) {
+        newErrors.recoveryTimeline = "Recovery timeline is required for injuries";
+      }
+    }
+
+    // Validate next checkup date if provided
+    if (formData.nextCheckup) {
+      const checkupDate = new Date(formData.nextCheckup);
+      const today = new Date();
+      if (checkupDate <= today) {
+        newErrors.nextCheckup = "Next checkup must be in the future";
       }
     }
 
