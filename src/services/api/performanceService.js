@@ -19,10 +19,80 @@ class PerformanceService {
     return { ...record };
   }
 
-  async getByAthleteId(athleteId) {
+async getByAthleteId(athleteId) {
     await this.delay(250);
     const records = this.performance.filter(p => p.athleteId === parseInt(athleteId));
     return records.map(record => ({ ...record }));
+  }
+
+  async getPerformanceByDateRange(startDate, endDate) {
+    await this.delay(300);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    return this.performance.filter(p => {
+      const recordDate = new Date(p.lastUpdated);
+      return recordDate >= start && recordDate <= end;
+    }).map(record => ({ ...record }));
+  }
+
+  async getPerformanceMetrics(athleteId = null, metricType = null) {
+    await this.delay(250);
+    let data = [...this.performance];
+    
+    if (athleteId) {
+      data = data.filter(p => p.athleteId === parseInt(athleteId));
+    }
+
+    const metrics = {
+      totalGoals: data.reduce((sum, p) => sum + (p.goals || 0), 0),
+      totalAssists: data.reduce((sum, p) => sum + (p.assists || 0), 0),
+      totalMinutes: data.reduce((sum, p) => sum + (p.minutesPlayed || 0), 0),
+      avgPassAccuracy: data.length > 0 ? Math.round(data.reduce((sum, p) => sum + (p.passAccuracy || 0), 0) / data.length) : 0,
+      totalMatches: data.reduce((sum, p) => sum + (p.matchesPlayed || 0), 0),
+      avgSprintTime: data.length > 0 ? parseFloat((data.reduce((sum, p) => sum + (p.sprintTime || 12.5), 0) / data.length).toFixed(2)) : 12.5,
+      avgEnduranceScore: data.length > 0 ? Math.round(data.reduce((sum, p) => sum + (p.enduranceScore || 75), 0) / data.length) : 75,
+      technicalSkillsAvg: data.length > 0 ? Math.round(data.reduce((sum, p) => sum + (p.technicalSkills || 80), 0) / data.length) : 80
+    };
+
+    return metricType ? metrics[metricType] : metrics;
+  }
+
+  async getSprintTimes(limit = 10) {
+    await this.delay(200);
+    return this.performance
+      .map(p => ({
+        ...p,
+        sprintTime: p.sprintTime || (11.8 + Math.random() * 1.4) // Generate realistic sprint times 11.8-13.2s
+      }))
+      .sort((a, b) => a.sprintTime - b.sprintTime)
+      .slice(0, limit);
+  }
+
+  async getEnduranceScores(limit = 10) {
+    await this.delay(200);
+    return this.performance
+      .map(p => ({
+        ...p,
+        enduranceScore: p.enduranceScore || Math.round(65 + Math.random() * 30) // Generate scores 65-95
+      }))
+      .sort((a, b) => b.enduranceScore - a.enduranceScore)
+      .slice(0, limit);
+  }
+
+  async getTechnicalSkills() {
+    await this.delay(200);
+    return this.performance.map(p => ({
+      ...p,
+      technicalSkills: {
+        shooting: p.shooting || Math.round(70 + Math.random() * 25),
+        passing: p.passing || Math.round(75 + Math.random() * 20),
+        dribbling: p.dribbling || Math.round(65 + Math.random() * 30),
+        defending: p.defending || Math.round(60 + Math.random() * 35),
+        crossing: p.crossing || Math.round(65 + Math.random() * 30),
+        finishing: p.finishing || Math.round(70 + Math.random() * 25)
+      }
+    }));
   }
 
   async create(performanceData) {
