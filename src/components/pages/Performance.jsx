@@ -449,9 +449,8 @@ const calculateMetrics = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+</div>
     </motion.div>
-</motion.div>
   );
 };
 
