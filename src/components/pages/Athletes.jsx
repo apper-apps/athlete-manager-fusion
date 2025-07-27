@@ -1,18 +1,20 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import Button from "@/components/atoms/Button";
-import SearchBar from "@/components/molecules/SearchBar";
+import { toast } from "react-toastify";
+import { athleteService } from "@/services/api/athleteService";
+import ApperIcon from "@/components/ApperIcon";
 import FilterBar from "@/components/molecules/FilterBar";
 import AthleteCard from "@/components/molecules/AthleteCard";
+import SearchBar from "@/components/molecules/SearchBar";
 import AthleteModal from "@/components/organisms/AthleteModal";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
-import ApperIcon from "@/components/ApperIcon";
-import { athleteService } from "@/services/api/athleteService";
-import { toast } from "react-toastify";
+import Button from "@/components/atoms/Button";
 
 const Athletes = () => {
+  const navigate = useNavigate();
   const [athletes, setAthletes] = useState([]);
   const [filteredAthletes, setFilteredAthletes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -100,8 +102,8 @@ const Athletes = () => {
     });
   };
 
-  const handleViewAthlete = (athlete) => {
-    toast.info(`Viewing ${athlete.name}'s profile`);
+const handleViewAthlete = (athlete) => {
+    navigate(`/athletes/${athlete.Id}`);
   };
 
   const handleDeleteAthlete = async (athlete) => {

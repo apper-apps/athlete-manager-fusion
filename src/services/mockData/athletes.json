@@ -8,7 +8,50 @@
     "contactEmail": "marcus.rodriguez@email.com",
     "contactPhone": "(555) 123-4567",
     "jerseyNumber": 10,
-    "joinDate": "2023-01-15T00:00:00.000Z"
+    "joinDate": "2023-01-15T00:00:00.000Z",
+    "physicalStats": {
+      "height": "185 cm",
+      "weight": "78 kg",
+      "bodyFatPercentage": "12%"
+    },
+    "medicalHistory": [
+      {
+        "id": 1,
+        "date": "2023-10-15T00:00:00.000Z",
+        "type": "Injury",
+        "description": "Minor ankle sprain during training",
+        "status": "Recovered",
+        "doctor": "Dr. Smith"
+      },
+      {
+        "id": 2,
+        "date": "2024-01-08T00:00:00.000Z",
+        "type": "Checkup",
+        "description": "Annual physical examination",
+        "status": "Cleared",
+        "doctor": "Dr. Johnson"
+      }
+    ],
+    "performanceHistory": [
+      {
+        "id": 1,
+        "date": "2024-01-20T00:00:00.000Z",
+        "match": "vs Team Alpha",
+        "goals": 2,
+        "assists": 1,
+        "minutesPlayed": 90,
+        "rating": 8.5
+      },
+      {
+        "id": 2,
+        "date": "2024-01-27T00:00:00.000Z",
+        "match": "vs Team Beta",
+        "goals": 1,
+        "assists": 2,
+        "minutesPlayed": 85,
+        "rating": 7.8
+      }
+    ]
   },
   {
     "Id": 2,
@@ -19,7 +62,34 @@
     "contactEmail": "james.thompson@email.com",
     "contactPhone": "(555) 234-5678",
     "jerseyNumber": 1,
-    "joinDate": "2022-08-20T00:00:00.000Z"
+    "joinDate": "2022-08-20T00:00:00.000Z",
+    "physicalStats": {
+      "height": "192 cm",
+      "weight": "85 kg",
+      "bodyFatPercentage": "10%"
+    },
+    "medicalHistory": [
+      {
+        "id": 1,
+        "date": "2023-09-12T00:00:00.000Z",
+        "type": "Injury",
+        "description": "Finger fracture",
+        "status": "Recovered",
+        "doctor": "Dr. Wilson"
+      }
+    ],
+    "performanceHistory": [
+      {
+        "id": 1,
+        "date": "2024-01-20T00:00:00.000Z",
+        "match": "vs Team Alpha",
+        "goals": 0,
+        "assists": 0,
+        "minutesPlayed": 90,
+        "saves": 8,
+        "rating": 8.2
+      }
+    ]
   },
   {
     "Id": 3,
@@ -30,7 +100,33 @@
     "contactEmail": "alex.chen@email.com",
     "contactPhone": "(555) 345-6789",
     "jerseyNumber": 8,
-    "joinDate": "2023-03-10T00:00:00.000Z"
+    "joinDate": "2023-03-10T00:00:00.000Z",
+    "physicalStats": {
+      "height": "178 cm",
+      "weight": "72 kg",
+      "bodyFatPercentage": "11%"
+    },
+    "medicalHistory": [
+      {
+        "id": 1,
+        "date": "2024-02-01T00:00:00.000Z",
+        "type": "Checkup",
+        "description": "Regular health screening",
+        "status": "Cleared",
+        "doctor": "Dr. Lee"
+      }
+    ],
+    "performanceHistory": [
+      {
+        "id": 1,
+        "date": "1/20/2024 12:00:00 AMZ",
+        "match": "vs Team Alpha",
+        "goals": 0,
+        "assists": 3,
+        "minutesPlayed": 90,
+        "rating": 8.0
+      }
+    ]
   },
   {
     "Id": 4,
@@ -41,7 +137,24 @@
     "contactEmail": "diego.santos@email.com",
     "contactPhone": "(555) 456-7890",
     "jerseyNumber": 4,
-    "joinDate": "2022-11-05T00:00:00.000Z"
+    "joinDate": "2022-11-05T00:00:00.000Z",
+    "physicalStats": {
+      "height": "188 cm",
+      "weight": "82 kg",
+      "bodyFatPercentage": "9%"
+    },
+    "medicalHistory": [],
+    "performanceHistory": [
+      {
+        "id": 1,
+        "date": "2024-01-20T00:00:00.000Z",
+        "match": "vs Team Alpha",
+        "goals": 0,
+        "assists": 0,
+        "minutesPlayed": 90,
+        "rating": 7.5
+      }
+    ]
   },
   {
     "Id": 5,
@@ -52,7 +165,33 @@
     "contactEmail": "emily.johnson@email.com",
     "contactPhone": "(555) 567-8901",
     "jerseyNumber": 11,
-    "joinDate": "2023-05-18T00:00:00.000Z"
+    "joinDate": "2023-05-18T00:00:00.000Z",
+    "physicalStats": {
+      "height": "170 cm",
+      "weight": "65 kg",
+      "bodyFatPercentage": "15%"
+    },
+    "medicalHistory": [
+      {
+        "id": 1,
+        "date": "2023-12-20T00:00:00.000Z",
+        "type": "Injury",
+        "description": "Hamstring strain",
+        "status": "Recovering",
+        "doctor": "Dr. Martinez"
+      }
+    ],
+    "performanceHistory": [
+      {
+        "id": 1,
+        "date": "1/15/2024 12:00:00 AMZ",
+        "match": "vs Team Gamma",
+        "goals": 1,
+        "assists": 0,
+        "minutesPlayed": 75,
+        "rating": 7.2
+      }
+    ]
   },
   {
     "Id": 6,
@@ -63,7 +202,14 @@
     "contactEmail": "carlos.martinez@email.com",
     "contactPhone": "(555) 678-9012",
     "jerseyNumber": 6,
-    "joinDate": "2022-09-12T00:00:00.000Z"
+    "joinDate": "2022-09-12T00:00:00.000Z",
+    "physicalStats": {
+      "height": "180 cm",
+      "weight": "75 kg",
+      "bodyFatPercentage": "13%"
+    },
+    "medicalHistory": [],
+    "performanceHistory": []
   },
   {
     "Id": 7,
@@ -74,7 +220,14 @@
     "contactEmail": "sarah.wilson@email.com",
     "contactPhone": "(555) 789-0123",
     "jerseyNumber": 3,
-    "joinDate": "2023-02-28T00:00:00.000Z"
+    "joinDate": "2023-02-28T00:00:00.000Z",
+    "physicalStats": {
+      "height": "175 cm",
+      "weight": "68 kg",
+      "bodyFatPercentage": "14%"
+    },
+    "medicalHistory": [],
+    "performanceHistory": []
   },
   {
     "Id": 8,
@@ -85,6 +238,13 @@
     "contactEmail": "ryan.oconnor@email.com",
     "contactPhone": "(555) 890-1234",
     "jerseyNumber": 9,
-    "joinDate": "2023-06-01T00:00:00.000Z"
+    "joinDate": "2023-06-01T00:00:00.000Z",
+    "physicalStats": {
+      "height": "183 cm",
+      "weight": "76 kg",
+      "bodyFatPercentage": "11%"
+    },
+    "medicalHistory": [],
+    "performanceHistory": []
   }
 ]

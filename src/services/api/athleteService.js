@@ -25,7 +25,14 @@ class AthleteService {
     const newAthlete = {
       Id: newId,
       ...athleteData,
-      joinDate: new Date().toISOString()
+      joinDate: new Date().toISOString(),
+      physicalStats: {
+        height: "",
+        weight: "",
+        bodyFatPercentage: ""
+      },
+      medicalHistory: [],
+      performanceHistory: []
     };
     this.athletes.push(newAthlete);
     return { ...newAthlete };
@@ -38,6 +45,36 @@ class AthleteService {
       throw new Error("Athlete not found");
     }
     this.athletes[index] = { ...this.athletes[index], ...athleteData };
+    return { ...this.athletes[index] };
+  }
+
+  async updatePhysicalStats(id, physicalStats) {
+    await this.delay(300);
+    const index = this.athletes.findIndex(a => a.Id === parseInt(id));
+    if (index === -1) {
+      throw new Error("Athlete not found");
+    }
+    this.athletes[index].physicalStats = { ...this.athletes[index].physicalStats, ...physicalStats };
+    return { ...this.athletes[index] };
+  }
+
+  async updateMedicalHistory(id, medicalHistory) {
+    await this.delay(300);
+    const index = this.athletes.findIndex(a => a.Id === parseInt(id));
+    if (index === -1) {
+      throw new Error("Athlete not found");
+    }
+    this.athletes[index].medicalHistory = medicalHistory;
+    return { ...this.athletes[index] };
+  }
+
+  async updatePerformanceHistory(id, performanceHistory) {
+    await this.delay(300);
+    const index = this.athletes.findIndex(a => a.Id === parseInt(id));
+    if (index === -1) {
+      throw new Error("Athlete not found");
+    }
+    this.athletes[index].performanceHistory = performanceHistory;
     return { ...this.athletes[index] };
   }
 
