@@ -1,28 +1,65 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 import Performance from "@/components/pages/Performance";
 import Select from "@/components/atoms/Select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/atoms/Card";
 
-const PerformanceChart = ({ performanceData, athletes, chartType: externalChartType }) => {
-  const [chartType, setChartType] = useState(externalChartType || "goals");
-  const [chartData, setChartData] = useState({
-    series: [],
-    options: {}
-  });
+// Error Boundary Component for Chart
+class ChartErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { hasError: false, error: null }
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Chart Error:', error, errorInfo)
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex items-center justify-center h-64 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+          <div className="text-center">
+            <p className="text-gray-600 mb-2">Chart failed to load</p>
+            <button 
+              onClick={() => this.setState({ hasError: false, error: null })}
+              className="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )
+    }
+
+    return this.props.children
+  }
+}
 
 const chartOptions = [
-    { value: "goals", label: "Goals Scored" },
-    { value: "assists", label: "Assists Made" },
-    { value: "minutes", label: "Minutes Played" },
-    { value: "accuracy", label: "Pass Accuracy" },
-    { value: "sprint", label: "Sprint Times" },
-    { value: "endurance", label: "Endurance Scores" },
-    { value: "technical", label: "Technical Skills" },
-    { value: "comparison", label: "Performance Comparison" },
-    { value: "trends", label: "Trend Analysis" },
-    { value: "forecast", label: "Performance Forecast" }
-  ];
+  { value: "goals", label: "Goals Scored" },
+  { value: "assists", label: "Assists Made" },
+  { value: "minutes", label: "Minutes Played" },
+  { value: "accuracy", label: "Pass Accuracy" },
+  { value: "sprint", label: "Sprint Times" },
+  { value: "endurance", label: "Endurance Scores" },
+  { value: "technical", label: "Technical Skills" },
+  { value: "comparison", label: "Performance Comparison" },
+  { value: "trends", label: "Trend Analysis" },
+  { value: "forecast", label: "Performance Forecast" }
+];
+
+const PerformanceChart = ({ 
+  performanceData = [], 
+  athletes = [], 
+  externalChartType = null 
+}) => {
+  const [chartType, setChartType] = useState(externalChartType || "goals");
+  const [chartData, setChartData] = useState({ series: [], options: {} });
 
 useEffect(() => {
     if (externalChartType) {
